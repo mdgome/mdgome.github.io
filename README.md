@@ -1,2 +1,1 @@
-# mdgome.github.io
-blog
+# Repository for mdgome blog - mdgome.github.io

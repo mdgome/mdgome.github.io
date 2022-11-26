@@ -1,0 +1,2 @@
+# blog
+mdgome blog
