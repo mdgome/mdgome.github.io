@@ -1,1 +1,0 @@
-# Repository for mdgome blog - mdgome.github.io
