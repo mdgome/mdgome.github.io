@@ -24,7 +24,7 @@ Prometheus - Grafana를 사용하여 모니터링 하기 위하여 스크립트 
 ## 상황
 - 서버는 IDC에 위치한 **On-premisse** Server로 OS에 직접 Agent를 설치해야 하는 상황
 - Linux Server 는 AD 가입한 서버와 단일 서버(AD 미가입) 서버가 혼재되어 있는 상황
-- 단일 서버 OS 계정은 Local 계정으로 챙길 상황은 생기지 않음
+- 단일 서버 OS 계정은 Local 계정으로 System Engineer와 협의는 불 필요
 - AD 가입 서버는 정책으로 Group이 새로 생겨 System Engineer와 협의 후 보조 그룹을 생성하여 계정에 추가
 ## Version 정보
 - MySQL: 5.7.21
@@ -33,10 +33,10 @@ Prometheus - Grafana를 사용하여 모니터링 하기 위하여 스크립트 
 - OS Bit: 64Bit
 
 ------
-테스트 용도로 Grafana 서버를 구성하며 실제 Grafana는 외부 부서에서 제공하는 서비스 사용
+> 테스트 용도로 Grafana 서버를 구성하며 실제 Grafana는 외부 부서에서 제공하는 서비스 사용   
 ## Grafana Install
-Install Grafana   
-```bash
+
+```bash   
 cat <<EOF | sudo tee -a /etc/yum.repo.d/grafna.repo
 [grafana]
 name=grafana
@@ -62,6 +62,8 @@ sudo grafana-cli admin reset-admin-password "Password"
 ```
 ----   
 ## Install Prometheus
+> Prometheus는 운영의 Owner를 가지고 있어 세부 사항 확인하여 진행
+
 ```bash
 # Prometheus OS User Create
 # 서비스 계정이므로 로그인 불가능 하도록 쉘 변경
@@ -75,7 +77,10 @@ mv /opt/prometheus-2.36.2.linux-amd64 /opt/prometheus
 
 chown -R prometheus.prometheus /opt/prometheus
 chmod -R 640 /opt/prometheus
+```
+> systemctl로 데몬을 관리 할 수 있도록 아래 과정을 진행
 
+```bash
 cat <<EOF | sudo tee -a /usr/lib/systemd/system/prometheus.service
 [Unit]
 Description=Prometheus Server
@@ -97,9 +102,10 @@ EOF
 ----
 ### Prometheus Configure
 > 모니터링할 서버가 추가 될 때 마다 Prometheus Daemon을 재기동 해야 하는 상황이 생김.   
-오랜 시간이 지난 후 봤을 때, 문제가 생긴건지 데몬이 재시작한건지 인지하기 어려운 상황이 생김   
+> 오랜 시간이 지난 후 봤을 때, 문제가 생긴건지 데몬이 재시작한건지 인지하기 어려운 상황이 생김   
 그에 따라 동적으로 설정 추가 및 변경이 가능하도록 파일 기반으로 수집할 서버 목록을 정리   
-참고한 대시보드에서는 DB/OS 지표를 하나의 대시보드에서 모두 보고 있음, IP:Port 형식으로 데이터 수집 시   
+
+> 참고한 대시보드에서는 DB/OS 지표를 하나의 대시보드에서 모두 보고 있음, IP:Port 형식으로 데이터 수집 시   
 OS/DB 따로 봐야 하는 상황이 생김 그에 따라 IP:Port(Server:Port) 에서 ":Port" 부분을 분리하여   
 메타 데이터 저장   
 
@@ -131,7 +137,7 @@ scrape_configs:
       - source_labels: ['__address__']
         regex:         "(.*):.*"
         target_label:  "instance"
-        replacement:   "${1}"
+        replacement:   "\${1}"
 EOF
 
 cat <<EOF | sudo tee -a /opt/prometheus/sd/mysql/static_config.yml
@@ -173,8 +179,11 @@ tar -xvzf node_exporter-1.3.1.linux-amd64.tar.gz -C /opt/prometheus
 mv /opt/prometheus/node_exporter-1.3.1.linux-amd64/ /opt/prometheus/node_exporter
 chown -R prometheus.prometheus /opt/prometheus
 chmod -R 700 /opt/prometheus
+```
 
+> systemctl로 데몬을 관리 할 수 있도록 아래 과정을 진행
 
+```bash
 cat << EOF | sudo tee -a /usr/lib/systemd/system/node_exporter.service
 [Unit]
 Description=Prometheus Node Exporter
@@ -191,6 +200,7 @@ ExecStart=/opt/prometheus/node_exporter/node_exporter
 WantedBy=multi-user.target
 EOF
 ```
+----
 ## Install mysqld Exporter
 ```bash
 wget "https://github.com/prometheus/mysqld_exporter/releases/download/v0.14.0/mysqld_exporter-0.14.0.linux-amd64.tar.gz"
@@ -213,12 +223,18 @@ chmod -R 700 /opt/prometheus
 chmod 600 /opt/prometheus/mysqld_exporter/my.cnf
 
 ```
+---
+> mysqld exporter 는 DB 계정이 필요하며 필요한 권한은 아래와 같다.   
+
 ```sql
 # mysql --login-path=localhost
 
 CREATE USER `prometh_service`@`localhost` idneitifed by "";
 GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO `prometh_service`@`localhost`;
 ```
+> DB 계정이 생성이 완료되었으면 systemctl로 데몬을 관리 할 수 있도록 아래 과정을 진행   
+> 옵션의 경우 mysqld_exporter github에서 확인할 수 있다.
+---
 
 ```bash
 cat << EOF | sudo tee -a /usr/lib/systemd/system/mysqld_exporter.service
