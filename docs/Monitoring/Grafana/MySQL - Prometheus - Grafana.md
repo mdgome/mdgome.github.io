@@ -35,8 +35,8 @@ Prometheus - Grafana를 사용하여 모니터링 하기 위하여 스크립트 
 ------
 테스트 용도로 Grafana 서버를 구성하며 실제 Grafana는 외부 부서에서 제공하는 서비스 사용
 ## Grafana Install
-Install Grafana
-```bash 
+Install Grafana   
+```bash
 cat <<EOF | sudo tee -a /etc/yum.repo.d/grafna.repo
 [grafana]
 name=grafana
