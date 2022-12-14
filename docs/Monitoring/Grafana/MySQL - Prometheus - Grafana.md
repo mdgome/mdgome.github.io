@@ -233,7 +233,7 @@ CREATE USER `prometh_service`@`localhost` idneitifed by "";
 GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO `prometh_service`@`localhost`;
 ```
 > DB 계정이 생성이 완료되었으면 systemctl로 데몬을 관리 할 수 있도록 아래 과정을 진행   
-> 옵션의 경우 mysqld_exporter github에서 확인할 수 있다.
+> 옵션의 경우 mysqld_exporter github에서 확인할 수 있다.   
 ---
 
 ```bash
