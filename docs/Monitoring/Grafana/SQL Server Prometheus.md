@@ -1,6 +1,6 @@
 ---
-layout: default
-title: SQL Server(MSSQL), Prometheus, Grafana Install
+layout: post
+title: SQL Server(MSSQL), Prometheus, Grafana Install (프로메테우스-그라파나 연동)
 parent: Grafana
 grand_parent: Monitoring
 ---

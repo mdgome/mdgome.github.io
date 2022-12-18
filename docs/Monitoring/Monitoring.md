@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Monitoring
+title: 모니터링
 has_children: true
 permalink: /docs/Monitoring
 child_nav_order: desc

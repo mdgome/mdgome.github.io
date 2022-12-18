@@ -1,6 +1,6 @@
 ---
-layout: default
-title: MySQL, Prometheus, Grafana Install
+layout: post
+title: MySQL, Prometheus, Grafana Install (프로메테우스-그라파나 연동)
 parent: Grafana
 grand_parent: Monitoring
 ---
@@ -22,7 +22,7 @@ Prometheus - Grafana를 사용하여 모니터링 하기 위하여 스크립트 
 * [node_exporter Github](https://github.com/prometheus/node_exporter)
 * [mysqld_exporter Github](https://github.com/prometheus/mysqld_exporter)
 ## 상황
-- 서버는 IDC에 위치한 **On-premisse** Server로 OS에 직접 Agent를 설치해야 하는 상황
+- 서버는 IDC에 위치한 **On-premise** Server로 OS에 직접 Agent를 설치해야 하는 상황
 - Linux Server 는 AD 가입한 서버와 단일 서버(AD 미가입) 서버가 혼재되어 있는 상황
 - 단일 서버 OS 계정은 Local 계정으로 System Engineer와 협의는 불 필요
 - AD 가입 서버는 정책으로 Group이 새로 생겨 System Engineer와 협의 후 보조 그룹을 생성하여 계정에 추가
