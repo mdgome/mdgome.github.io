@@ -1,8 +1,8 @@
 ---
 layout: post
 title: SQL Server(MSSQL), Prometheus, Grafana Install (프로메테우스-그라파나 연동)
-parent: Grafana
-grand_parent: Monitoring
+parent: 그라파나(Grafana), 프로메테우스(Prometheus)
+grand_parent: 모니터링
 ---
 <details open markdown="block">
   <summary>

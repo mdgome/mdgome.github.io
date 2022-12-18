@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 그라파나(Grafana), 프로메테우스(Prometheus)
-parent: Monitoring
+parent: 모니터링
 has_children: true
 child_nav_order: desc
 ---
