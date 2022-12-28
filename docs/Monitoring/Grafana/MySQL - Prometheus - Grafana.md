@@ -62,23 +62,40 @@ sudo grafana-cli admin reset-admin-password "Password"
 ```
 ----   
 ## Install Prometheus
-> Prometheus는 운영의 Owner를 가지고 있어 세부 사항 확인하여 진행
+
+Prometheus OS 계정 생성   
+서비스 계정이므로 로그인 불가능 하도록 쉘 변경   
 
 ```bash
-# Prometheus OS User Create
-# 서비스 계정이므로 로그인 불가능 하도록 쉘 변경
 sudo useradd -m -r -s /sbin/nologin -d /opt/prometheus prometheus
+```
 
-# prometheus archive file download
+`wget` 명령어를 통하여 Prometheus 파일 Download
+
+```bash
 wget "https://github.com/prometheus/prometheus/releases/download/v2.36.2/prometheus-2.36.2.linux-amd64.tar.gz"
+```
+
+현 설정은 따로 디렉토리를 분리하여 진행   
+Server에 설치하는 외부 툴은 `/opt`에 저장
+
+Version 정보는 문서로 별도 관리   
+EOS로 Version 정보 변경 시 Daemon Configure 파일도 변경되어 Version 정보 삭제
+
+```bash
 mkdir -p /opt
+
 tar -xvzf prometheus-2.36.2.linux-amd64.tar.gz -C /opt
 mv /opt/prometheus-2.36.2.linux-amd64 /opt/prometheus
+```
 
+Proemtheus 서비스 계정을 분리하여 데몬 실행하여 해당 데몬을 시작할 수 있도록   
+디렉토리 권한 및 소유자 변경
+```bash
 chown -R prometheus.prometheus /opt/prometheus
 chmod -R 640 /opt/prometheus
 ```
-> systemctl로 데몬을 관리 할 수 있도록 아래 과정을 진행
+systemctl로 데몬을 관리 할 수 있도록 아래 과정을 진행
 
 ```bash
 cat <<EOF | sudo tee -a /usr/lib/systemd/system/prometheus.service
@@ -110,23 +127,37 @@ OS/DB 따로 봐야 하는 상황이 생김 그에 따라 IP:Port(Server:Port) �
 메타 데이터 저장   
 
 
+해당 서버는 DNS가 등록되어 있지 않은 서버이며, Dashboard에서 IP로 볼 시 시인성이 떨어져 Local에 DNS 정보 등록
 ```bash
 cat <<EOF | sudo tee -a /etc/hosts
 192.168.137.101 MYSQLDB01
 192.168.137.102 MYSQLDB02
 192.168.137.103 MYSQLDB03
 EOF
+```
+Config 파일을 구분할 수 있도록 과거 설정 파일들 디렉토리 분리
 
+```bash
 mkdir -p /opt/prometheus/sd/mysql
-mkdir -p /opt/prometheus/sd/mssql
 mkdir -p /opt/prometheus/config_old
-mv /opt/prometheus/prometheus.yml /opt/prometheus/config_old
+mv /opt/prometheus/prometheus.yml /opt/prometheus/config_old/prometheus.yml.reference
+```
 
+---- 
+
+### Prometheus 설정 파일 신규 등록   
+아래 내용은 설정 파일에 대한 설명   
+> - `scrape_interval`: metric 수집 주기 설정   
+> - `evaluation_interval` : Prometheus Rule(Alert Rule, Recording Rule) Reload 주기 설정   
+> - `file_sd_configs` : 파일 기반으로 수집 서버 설정   
+> - `relabel_configs` : Meta 정보 등 수집되는 정보 변경을 위한 설정
+>   - 참고한 대시보드에서 `:Port` 정보를 삭제하기 위하여 해당 설정 적용
+
+```yaml
 cat <<EOF | sudo tee -a /opt/prometheus/prometheus.yml
 global:
-  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
-  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
-  # scrape_timeout is set to the global default (10s).
+  scrape_interval: 15s
+  evaluation_interval: 15s
  
 scrape_configs:
   - job_name: "mysql"
@@ -139,8 +170,13 @@ scrape_configs:
         target_label:  "instance"
         replacement:   "\${1}"
 EOF
+```
 
-cat <<EOF | sudo tee -a /opt/prometheus/sd/mysql/static_config.yml
+수접 서버를 json파일 기반으로 작성   
+지원하는 파일은 Json, Yaml, Csv 파일 지원   
+
+```json
+cat <<EOF | sudo tee -a /opt/prometheus/sd/mysql/static_config.json
 [
     {
         "targets": [
@@ -164,20 +200,55 @@ cat <<EOF | sudo tee -a /opt/prometheus/sd/mysql/static_config.yml
     }
 ]
 EOF
+```
 
+```bash
+# 새로 생성한 파일 권한 및 소유자 변경
 chown -R prometheus.prometheus /opt/prometheus
 chmod -R 640 /opt/prometheus
 ```
 
+----    
+
 ## Install Node Exporter
+
+----  
+Agent 설치 하기 위하여 OS에 데몬 실행 계정 생성(서비스 계정)    
 
 ```bash
 mkdir -p /opt
-sudo useradd -m -r -s /sbin/nologin -G sudouser -d /opt/prometheus prometheus
+sudo useradd -m -r -s /sbin/nologin -d /opt/prometheus prometheus
+```
+
+필요에 따라 생략하며, 아래는 생략 예시
+  - mysqld exporter 설치하면서 미리 진행
+  - Server Owner 부서 정책
+
+  ---- 
+
+`wget` 명령어를 통한 node_exporter 압축 파일 Download
+
+```bash
 wget "https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz"
+```
+
+현 설정은 따로 디렉토리를 분리하여 진행   
+Server에 설치하는 외부 툴은 `/opt`에 저장   
+Prometheus 관련 Tool은 `/opt/prometheus` 로 저장
+
+Version 정보는 문서로 별도 관리   
+EOS로 Version 정보 변경 시 Daemon Configure 파일도 변경되어 Version 정보   
+
+```bash
 tar -xvzf node_exporter-1.3.1.linux-amd64.tar.gz -C /opt/prometheus
 mv /opt/prometheus/node_exporter-1.3.1.linux-amd64/ /opt/prometheus/node_exporter
 chown -R prometheus.prometheus /opt/prometheus
+```
+
+root 권한을 가진 사용자 외 접근이 불가능 하도록 디렉토리 권한 설정 변경
+- prometheus 계정은 로그인 불가 쉘로 인하여 접근 불가
+
+```bash
 chmod -R 700 /opt/prometheus
 ```
 
@@ -202,14 +273,26 @@ EOF
 ```
 ----
 ## Install mysqld Exporter
+
+node_exporter와 겹치는 설정은 설명을 생략합니다.
+
 ```bash
 wget "https://github.com/prometheus/mysqld_exporter/releases/download/v0.14.0/mysqld_exporter-0.14.0.linux-amd64.tar.gz"
 mkdir -p /opt
 tar -xvzf mysqld_exporter-0.14.0.linux-amd64.tar.gz -C /opt/prometheus
 mv /opt/prometheus/mysqld_exporter-0.14.0.linux-amd64/ /opt/prometheus/mysqld_exporter
+```
 
+MySQL DB 정보는 DB에 직접 접근하여 System Table 정보를 수집한다.   
+그에 따라 DB 계정 정보가 필요하며 해당 정보는 파일로 설정한다.   
+
+```bash
 touch /opt/prometheus/mysqld_exporter/my.cnf
+```
 
+아래 설정 파일은 console에 노출되지 않도록 가급적 vi/nano 등의 편집기로 수정/등록한다.
+
+```bash
 cat << EOF | sudo tee -a /opt/prometheus/mysqld_exporter/my.cnf
 [client]
 port=3306
@@ -223,8 +306,13 @@ chmod -R 700 /opt/prometheus
 chmod 600 /opt/prometheus/mysqld_exporter/my.cnf
 
 ```
----
-> mysqld exporter 는 DB 계정이 필요하며 필요한 권한은 아래와 같다.   
+
+---    
+
+mysqld exporter 는 DB 계정이 필요하며 필요한 권한은 아래와 같다.   
+mysql 접속 정보는 mysql_config_editor를 통하여 미리 저장해놓았으며   
+해당 접속 정보를 기반으로 console에 접속한다.
+   - Remote 환경일 경우 Remote로 접근하여 계정을 생성 및 권한 설정을 한다.
 
 ```sql
 # mysql --login-path=localhost
@@ -233,8 +321,10 @@ CREATE USER `prometh_service`@`localhost` idneitifed by "";
 GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO `prometh_service`@`localhost`;
 ```
 > DB 계정이 생성이 완료되었으면 systemctl로 데몬을 관리 할 수 있도록 아래 과정을 진행   
-> 옵션의 경우 mysqld_exporter github에서 확인할 수 있다.   
-------
+> 옵션의 경우 mysqld_exporter github에서 확인할 수 있다.     
+> 아래 설정은 일반적인(Reference Default) 설정이다.   
+> 상황에 따라 변경하에 적용하자.   
+
 
 ```bash
 cat << EOF | sudo tee -a /usr/lib/systemd/system/mysqld_exporter.service
@@ -297,16 +387,30 @@ EOF
 ```
 
 ## Daemon Run
+----   
+
+데몬 설정파일을 systemctl 에서 읽을 수 있도록 reload
 ```bash
 systemctl daemon-reload
+```
 
+서비스 시작 및 재부팅시 자동 시작
+
+```bash
 systemctl start mysqld_exporter
 systemctl enable mysqld_exporter
 
 systemctl start node_exporter
 systemctl enable node_exporter
+```
+설정한 default port 로 listen 인지 확인
 
+```bash
 netstat -nalp | grep 910
 tcp6       0      0 :::9100                 :::*                    LISTEN      13007/node_exporter
 tcp6       0      0 :::9104                 :::*                    LISTEN      13114/mysqld_export
 ```
+
+- 만약 port가 listen 하지 않을 시
+- `systemctl status mysqld_exporter`, `systemctl status node_exporter` 의 명렁어를 통한 확인
+- `journalctl`를 통해서도 확인 가능
