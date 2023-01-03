@@ -17,6 +17,9 @@ parent: Hadoop
 ----
    
 # Hadoop 설치
+Hadoop **Cluster**로 설치   
+[Hadoop DOCS](https://hadoop.apache.org/docs/r3.2.3/hadoop-project-dist/hadoop-common/ClusterSetup.html)
+
 
 ```bash
 cat <<EOF | tee -a ./hadoop_install.sh
