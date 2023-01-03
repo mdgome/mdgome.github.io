@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Hadoop install
+title: What is Hadoop? 
 parent: Hadoop
 ---
 ---
