@@ -11,6 +11,7 @@ parent: Hadoop
 {:toc}
 </details>
 
+
 > 하둡 설치 문서이며 현재는 스크립트 기반
 > 추후 설명 기입 예정
 

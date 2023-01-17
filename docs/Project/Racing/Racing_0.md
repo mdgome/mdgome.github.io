@@ -18,31 +18,42 @@ parent: Project
 - [데브원영님 Youtube](https://www.youtube.com/watch?v=C_4C-1v9Src&t=430s)
 
 # 상황
-포르자 모터스포츠 7의 데이터가 아닌 
-아세토 코르사의 데이터를 수집할 수 있도록 진행 할 예정이다.
+포르자 모터스포츠 7의 데이터가 아닌    
+[아세토 코르사](https://www.assettocorsa.it/)의 데이터를 수집할 수 있도록 진행 할 예정이다.
 
-현재 보유한 장비는 아래와 같다.
+현재 보유한 장비는 아래와 같다.   
 
-- Windows Desktop 
+- Windows 10 Desktop 
 - ThrustMaster TS-XW
 - ThrustMaster T3PA Pedal
 
-데브원영님 콘텐츠를 보면 포르자 모터스포츠 7에서 UDP 형태로 데이터를 Pull할 수 있도록 되어 있는것으로 보인다.
+데브원영님 콘텐츠를 보면 포르자 모터스포츠 7에서 UDP 형태로 데이터를 Pull할 수 있도록 되어 있는것으로 보인다.   
 
-아세토 코르사도 동일한지 찾아본 결과 아래 2개의 내용을 찾아볼 수 있었다.
-[ASSETTO CORSA MOD 페이지](https://assettocorsamods.net/threads/doc-ac-udp-remote-telemetry.60/)
-[Socket Data DOCS](https://docs.google.com/document/d/1KfkZiIluXZ6mMhLWfDX1qAGbvhGRC3ZUzjVIt5FQpp4/pub)
+아세토 코르사의 Data 는 Shared Memory 에서 수집한다.   
+아래 링크는 해당 Data를 수집하기 위하여 Shared Memory에 접근한 코드이다.     
+- [Github dabde](https://github.com/dabde/acc_shared_mem_access_python/blob/main/acc_shm_reader.py)
+- [Github dzosz](https://github.com/dzosz/OpenRacingHUD/blob/master/scripts/assetto_corsa_telemetry_reader.py)
 
-해당 내용은 UDP 9996 Port로 데이터 Pull이 가능하며,
-어떤 데이터가 있는지 확인할 수 있다.
 
-다음에는 카프카 컨슈머로 데이터를 수집해보도록 하겠다.
+다음에는 Python으로 Shared Memory에 접근하여 API 혹은 Socket으로 데이터를 보내도록 해보겠다.
+
+
+**학습의 의미도 있는 프로젝트이므로 밑바닥부터 해보자**   
+~~아세토 코르사도 동일한지 찾아본 결과 아래 2개의 내용을 찾아볼 수 있었다.~~   
+- ~~[ASSETTO CORSA MOD 페이지](https://assettocorsamods.net/threads/doc-ac-udp-remote-telemetry.60/)~~
+- ~~[Socket Data DOCS](https://docs.google.com/document/d/1KfkZiIluXZ6mMhLWfDX1qAGbvhGRC3ZUzjVIt5FQpp4/pub)~~
+
+~~해당 내용은 UDP 9996 Port로 데이터 Pull이 가능하며, 어떤 데이터가 있는지 확인할 수 있다.~~  
+
+~~다음에는 카프카 컨슈머로 데이터를 수집해보도록 하겠다.~~
+
+
 
 ----
 
 아래 내용은 혹시... DOCS가 없어지는 상황을 염려하여 복붙했다..
 Socket Data DOCS
-```C
+```cpp
 AC Remote Telemetry Documentation
 
 This document helps you to set up UDP socket comunication between your application and Assetto Corsa. All the code samples are made using http://codepad.org/ .

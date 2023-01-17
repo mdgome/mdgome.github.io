@@ -3,16 +3,14 @@ layout: post
 title: What is Hadoop? 
 parent: Hadoop
 ---
----
 <details open markdown="block">
   <summary>
     목차
   </summary>
   {: .text-delta }
 {:toc}
-</details>   
+</details>  
 
----
 
 # 1.Hadoop 이란   
 
@@ -72,7 +70,8 @@ HDFS는 실시간이 아닌 Batch 목적으로 설계되었다.
     - ![Untitled](https://hadoop.apache.org/docs/r3.2.3/hadoop-project-dist/hadoop-hdfs/images/hdfsarchitecture.png) 
 
 ## 1-3. Map-Reduce
-     HDFS의 데이터를 읽어와 처리하는 방식   
+> HDFS의 데이터를 읽어와 처리하는 방식  
+
 1. Map의 경우 데이터를 분산하는 로직이 들어간다.   
 2. Reduce는 분산된 데이터를 처리하는 로직이 들어간다.   
 
@@ -86,8 +85,9 @@ Version 1 에서의 Map-Reduce는 아래와 같은 내용이 존재한다.
 
 ## 1-4. Secondary Name Node
 HDFS에서 Client 에서 작업(Action OR File/Directory Create/Move etc...)을 수행할 경우 Edit Log에 기록하게 된다.   
+해당 Edit Log를 기반으로 Secondary name node 가 merge 이후 main name node의 fsimage를 최신화 하게 된다.
 - fsimage의 최신화 **Edit Log(≒Trasaction Log) Merge** 
-            - 많은 수의 파일 생성/삭제, 디렉토리 삭제/생성 등의 Log
+            - Edit Log: 많은 수의 파일 생성/삭제, 디렉토리 삭제/생성 등의 Log
 
 
 ## 1-5. YARN
