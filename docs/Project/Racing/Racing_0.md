@@ -1,7 +1,8 @@
 ---
 layout: post
 title: PC Racing Game Extract Data - 0
-parent: Project
+parent: Racing
+grand_parent: Project
 ---
 <details open markdown="block">
   <summary>
@@ -47,12 +48,10 @@ parent: Project
 
 ~~다음에는 카프카 컨슈머로 데이터를 수집해보도록 하겠다.~~
 
-
-
 ----
 
-아래 내용은 혹시... DOCS가 없어지는 상황을 염려하여 복붙했다..
-Socket Data DOCS
+~~아래 내용은 혹시... DOCS가 없어지는 상황을 염려하여 복붙했다..~~    
+~~Socket Data DOCS~~    
 ```cpp
 AC Remote Telemetry Documentation
 

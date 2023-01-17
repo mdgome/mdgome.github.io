@@ -14,4 +14,8 @@ child_nav_order: desc
 # Github
 []()
 
-# Output
+# Dashboard
+
+# Data Architecture
+
+# System Architecture
