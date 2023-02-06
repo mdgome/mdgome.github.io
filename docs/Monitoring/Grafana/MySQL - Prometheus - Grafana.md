@@ -8,7 +8,9 @@ grand_parent: Monitoring
   <summary>
     목차
   </summary>
-  {: .text-delta }
+  {: .no_toc .text-delta }
+
+1. TOC
 {:toc}
 </details>
 
