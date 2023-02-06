@@ -7,7 +7,9 @@ parent: Hadoop
   <summary>
     목차
   </summary>
-  {: .text-delta }
+    {: .no_toc .text-delta }
+
+1. TOC
 {:toc}
 </details>  
 
@@ -88,6 +90,10 @@ HDFS에서 Client 에서 작업(Action OR File/Directory Create/Move etc...)을 
 해당 Edit Log를 기반으로 Secondary name node 가 merge 이후 main name node의 fsimage를 최신화 하게 된다.
 - fsimage의 최신화 **Edit Log(≒RDBS Trasaction Log) Merge** 
     -  Edit Log: 많은 수의 파일 생성/삭제, 디렉토리 삭제/생성 등의 Log(≒RDBMS Trasaction Log)
+
+- Secondary name node는 HA(High availability)를 지원하는 목적이 아님
+- Name node가 재 기동 시 빠른 실행을 위한 목적
+    - == Namenode의 fsimage를 최신화 한다
 
 
 ## 1-5. YARN
