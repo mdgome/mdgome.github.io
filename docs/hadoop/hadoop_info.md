@@ -86,13 +86,61 @@ Version 1 에서의 Map-Reduce는 아래와 같은 내용이 존재한다.
 ## 1-4. Secondary Name Node
 HDFS에서 Client 에서 작업(Action OR File/Directory Create/Move etc...)을 수행할 경우 Edit Log에 기록하게 된다.   
 해당 Edit Log를 기반으로 Secondary name node 가 merge 이후 main name node의 fsimage를 최신화 하게 된다.
-- fsimage의 최신화 **Edit Log(≒Trasaction Log) Merge** 
-            - Edit Log: 많은 수의 파일 생성/삭제, 디렉토리 삭제/생성 등의 Log
+- fsimage의 최신화 **Edit Log(≒RDBS Trasaction Log) Merge** 
+    -  Edit Log: 많은 수의 파일 생성/삭제, 디렉토리 삭제/생성 등의 Log(≒RDBMS Trasaction Log)
 
 
 ## 1-5. YARN
 > Yet Another Resource Negotiator
 > Cluster Resource Management
 
+***System Architecture***
+
+![Untitled](https://hadoop.apache.org/docs/r3.2.4/hadoop-yarn/hadoop-yarn-site/yarn_architecture.gif)
+
+Hadoop Version 1.0에서 Job Tracker 병목 현상(BottleNeck)해결하기 위하여 나온 개념    
+- Resource Manager 
+    - Cluster들의 자원(CPU, RAM, Disk, Network)을 관리(Monitoring)
+- Node Manager
+    - 단일 노드들의 Job 실행
+- Container
+    - 자원들의 묶음
+- Application
+    - DAG(Directed Acyclic Graph) 또는 하나의 Job
+
+
 ### 1-5-1. Resource Manager
+- Yarn의 Main Daemon(Node|Server)으로 리소스 할당 및 관리한다.
+- Node Manager들의 자원 상태를 관리하며(Monitoring) 부족한 리소스를 할당
+    1. Scheduler
+        - 현재 실행되고 있는 Application에 따라, 스케줄링을 예약한다
+        - 순수한 스케줄러이며, Application의 상태를 추적하거나 모니터링하지 않음
+        - Capacity Scheduler, Fair Scheduler를 지원
+            - Cpacity: Multi-tenancy 실행 시 사용되는 스케줄링
+            - Fair: YARN을 통하여 Cluster들의 자원을 공평하게 분배
+    2. Application Manager
+        - Node Manager를 통해 컨테이너를 실행 할 수 있도록 하는 Module
+        - Resource Manager로 부터 컨테이너를 실행(Action)
+
+#### 예약 시스템
+![Untitled](https://hadoop.apache.org/docs/r3.2.4/hadoop-yarn/hadoop-yarn-site/images/yarn_reservation_system.png)
+
+
+0. 단계 User(Client) 예약 생성 요청 및 ReservationId 응답
+1. 단계  
+2. 단계
+3. 단계
+4. 단계
+5. 단계
+6. 단계
+7. 단계
+8. 단계
+
+XML 구성: Capacity-scheduler.xml, fair-scheduler.xml 에서 구성
+- [Cpacity Reservation Property DOCS](https://hadoop.apache.org/docs/r3.2.4/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html#Reservation_Properties) 
+- [Fair Reservation Property DOCS](https://hadoop.apache.org/docs/r3.2.4/hadoop-yarn/hadoop-yarn-site/FairScheduler.html#Configuring_ReservationSystem)
+- [Reservation System DOCS](https://hadoop.apache.org/docs/r3.2.4/hadoop-yarn/hadoop-yarn-site/ReservationSystem.html)
+#### Resource manger의 재시작 방법
+1. 비작업 보존 RM(Resource-manager) 재시작
+2. 작업 보존 RM(Resource-manager) 재시작
 ### 1-5-2. Node Manager
