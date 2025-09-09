@@ -19,6 +19,7 @@ exclude:
    - package-lock.json
    - Rakefile
    - README.md
+   - docs/NULL/
 
 search_enabled: true
 search:
